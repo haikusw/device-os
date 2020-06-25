@@ -107,6 +107,9 @@ public:
         cb.notify_disconnected = HAL_NET_notify_disconnected;
         cb.notify_dhcp = HAL_NET_notify_dhcp;
         cb.notify_can_shutdown = HAL_NET_notify_can_shutdown;
+        cb.idle_process = []() -> void {
+            SystemISRTaskQueue.process();
+        };
         HAL_NET_SetCallbacks(&cb, nullptr);
     }
 

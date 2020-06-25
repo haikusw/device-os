@@ -82,12 +82,17 @@ void HAL_NET_SetCallbacks(const HAL_NET_Callbacks* callbacks, void* reserved)
     netCallbacks.notify_disconnected = callbacks->notify_disconnected;
     netCallbacks.notify_dhcp = callbacks->notify_dhcp;
     netCallbacks.notify_can_shutdown = callbacks->notify_can_shutdown;
+
+    if (callbacks->size >= offsetof(HAL_NET_Callbacks, idle_process) + sizeof(callbacks->idle_process)) {
+        electronMDM.setIdleProcess(callbacks->idle_process);
+    }
 }
 
 #else
 
 void HAL_NET_SetCallbacks(const HAL_NET_Callbacks* callbacks, void* reserved)
 {
+    electronMDM.setIdleProcess(callbacks->idle_process);
 }
 
 #endif /* defined(MODULAR_FIRMWARE) && MODULAR_FIRMWARE */

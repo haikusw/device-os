@@ -264,6 +264,7 @@ MDMParser::MDMParser(void)
     _debugLevel = 3;
     _debugTime = HAL_Timer_Get_Milli_Seconds();
 #endif
+    _idle_process = NULL;
 }
 
 void MDMParser::setPowerMode(int mode) {
@@ -528,6 +529,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
         }
         // relax a bit
         HAL_Delay_Milliseconds(1);
+        idleProcess();
     }
     while (!TIMEOUT(start, timeout_ms) && !_cancel_all_operations);
 
@@ -1109,6 +1111,7 @@ bool MDMParser::powerOff(void)
                             } else if (_timePowerOn && now - _timePowerOn >= 30000UL) {
                                 break;
                             }
+                            idleProcess();
                             HAL_Delay_Milliseconds(100); // just wait
                         } while ( HAL_GPIO_Read(RI_UC) );
                         // reset timers
@@ -1147,6 +1150,7 @@ bool MDMParser::powerOff(void)
         if (check_ri) {
             system_tick_t t0 = HAL_Timer_Get_Milli_Seconds();
             while (HAL_GPIO_Read(RI_UC) && !TIMEOUT(t0, 10000)) {
+                idleProcess();
                 HAL_Delay_Milliseconds(1); // just wait
             }
             // if V_INT is low, indicate power is off
@@ -3579,6 +3583,16 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
         len--;
     }
     return WAIT;
+}
+
+void MDMParser::idleProcess() {
+    if (_idle_process) {
+        // FIXME: this is at least some guard against recursively calling into the modem code
+        bool c = _cancel_all_operations;
+        _cancel_all_operations = true;
+        _idle_process();
+        _cancel_all_operations = c;
+    }
 }
 
 // ----------------------------------------------------------------

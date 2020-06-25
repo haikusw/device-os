@@ -13,6 +13,7 @@ typedef struct {
     void (*notify_disconnected)(); // HAL_NET_notify_disconnected()
     void (*notify_dhcp)(bool dhcp); // HAL_NET_notify_dhcp()
     void (*notify_can_shutdown)(); // HAL_NET_notify_can_shutdown()
+    void (*idle_process)();
 } HAL_NET_Callbacks;
 
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInuS);

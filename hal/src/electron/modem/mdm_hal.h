@@ -485,6 +485,11 @@ public:
     /** Releases the modem lock. */
     void unlock();
 
+    /** Set idle processing function */
+    void setIdleProcess(void (*proc)()) {
+        _idle_process = proc;
+    }
+
 protected:
     /** Write bytes to the physical interface. This function should be
         implemented in a inherited class.
@@ -638,6 +643,7 @@ protected:
     void _setBandSelectString(MDM_BandSelect &data, char* bands, int index=0); // private helper to create bands strings
     bool _atOk(void);
     bool _checkEpsReg(void);
+    void idleProcess();
     static MDMParser* inst;
     bool _init;
     bool _pwr;
@@ -652,6 +658,8 @@ protected:
     system_tick_t _debugTime;
     void _debugPrint(int level, const char* color, const char* format, ...) __attribute__((format(printf, 4, 5)));
 #endif
+
+    void (*_idle_process)();
 };
 
 // -----------------------------------------------------------------------
